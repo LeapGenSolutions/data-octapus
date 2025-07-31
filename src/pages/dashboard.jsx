@@ -78,7 +78,7 @@ export default function Dashboard() {
             <div className="flex items-center space-x-3">
               <Logo size="small" />
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">Data Coffee</h1>
+                <h1 className="text-xl font-semibold text-gray-900">Data Octopus</h1>
                 <p className="text-sm text-gray-500">Dashboard</p>
               </div>
             </div>

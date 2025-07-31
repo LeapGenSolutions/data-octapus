@@ -177,7 +177,7 @@ export function Logo({ className, size = "md", interactive = true }) {
       </svg>
       
       {size === "lg" && (
-        <div className="text-center font-bold text-xl text-purple-800 mt-2">Data Coffee</div>
+        <div className="text-center font-bold text-xl text-purple-800 mt-2">Data Octopus</div>
       )}
     </div>
   );

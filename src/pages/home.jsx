@@ -270,7 +270,7 @@ export default function Home() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Freshness</p>
+                  <p className="text-sm font-medium text-gray-600">Inksync</p>
                   <p className="text-3xl font-bold text-[#9C27B0]">99.2%</p>
                   <p className="text-xs text-[#9C27B0] mt-1">↑ 0.5% from last period</p>
                 </div>
@@ -291,7 +291,7 @@ export default function Home() {
       onClick={() => setShowExtras((prev) => !prev)}
     >
       <div>
-        <h2 className="text-xl font-semibold text-[#2196F3]">Data Brewing Activity</h2>
+        <h2 className="text-xl font-semibold text-[#2196F3]">Data Inkflows Activity</h2>
         <p className="text-sm text-[#2196F3]">Tokenization and anonymization operations over time</p>
       </div>
       {showExtras ? (
@@ -387,7 +387,7 @@ export default function Home() {
 <Card className="border-[#2196F3] shadow-sm">
   <CardHeader className="bg-[#f7f1eb] flex flex-row justify-between items-center px-6 py-4 border-b border-[#2196F3]">
     <div className="flex items-center gap-3">
-      <h2 className="text-xl font-semibold text-[#2196F3]">Data Brewing Activity Log</h2>
+      <h2 className="text-xl font-semibold text-[#2196F3]">Data Inkflows Activity Log</h2>
       <Badge className="bg-[#2196F3] text-[#2196F3] text-xs">5 New</Badge>
     </div>
     <Button variant="ghost" className="text-[#2196F3] text-sm hover:underline">View All</Button>
@@ -484,7 +484,7 @@ export default function Home() {
 
         {/* Footer */}
         <div className="text-center text-sm text-[#2196F3] pt-6 border-t border-[#e6d5c5]">
-          © 2025 Data Coffee. All rights reserved. | Privacy Policy | Terms of Service
+          © 2025 Data Octopus. All rights reserved. | Privacy Policy | Terms of Service
         </div>
       </div>
     </DashboardLayout>

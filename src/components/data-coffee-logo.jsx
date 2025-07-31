@@ -21,7 +21,7 @@ export function DataCoffeeLogo({ className, size = "md", interactive = true }) {
       </div>
       <div className="flex flex-col">
         <span className={`font-bold text-gray-900 ${textSizeClasses[size]}`}>
-          Data Coffee
+          Data Octopus
         </span>
         <span className="text-xs text-gray-600 font-medium">
           Optimize Data Compliance
