@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { toast } from '../components/ui/toaster.jsx';
-import Logo from '../components/alien-logo.jsx';
 import { loginRequest } from '../authConfig.js';
 import { useMsal } from '@azure/msal-react';
 
@@ -41,7 +40,7 @@ export default function Login() {
           <div className="flex justify-center mb-6 relative">
             {/* Glow effect behind logo */}
             <div className="absolute inset-0 bg-gradient-radial from-blue-200/40 to-transparent rounded-full blur-xl transform scale-150"></div>
-            <Logo size="large" />
+            <img src="/logo192.png" alt="Data Octopus Logo" className="w-1/3 h-1/3 object-contain" />
           </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-cyan-600 to-indigo-600 bg-clip-text text-transparent mb-2">
             Data Octopus

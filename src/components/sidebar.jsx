@@ -1,7 +1,6 @@
 import { useLocation } from "wouter";
 import { cn } from "../lib/utils";
 import { Button } from "../components/ui/button";
-import Logo from "../components/alien-logo";
 import {
   Home,
   Settings,
@@ -57,7 +56,7 @@ export function Sidebar({ isMobileOpen = false, onMobileClose }) {
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white shadow-sm">
               <div className="flex items-center gap-3">
-                <Logo size="small" />
+                <img src="/logo192.png" alt="Data Octopus Logo" className="w-1/5 h-1/5 object-contain" />
                 <div className="flex flex-col">
                   <span className="font-bold text-gray-900 text-lg">Data Octopus</span>
                   <span className="text-xs text-gray-600 font-medium">Optimize Data Compliance</span>
