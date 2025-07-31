@@ -347,12 +347,12 @@ export default function ControlPanel() {
                 <div className="space-y-4">
                   <div>
                     <Label className="text-sm text-[#2196F3] font-medium">Company Name</Label>
-                    <Input placeholder="Data Coffee" className="w-[240px] h-10 text-sm border border-gray-300 rounded-md placeholder:text-gray-500 focus:ring-2 focus:ring-[#2196F3] bg-white text-black !bg-white !text-black dark:!bg-white dark:!text-black" />
+                    <Input placeholder="Data Octopus" className="w-[240px] h-10 text-sm border border-gray-300 rounded-md placeholder:text-gray-500 focus:ring-2 focus:ring-[#2196F3] bg-white text-black !bg-white !text-black dark:!bg-white dark:!text-black" />
                   </div>
 
                   <div>
                     <Label className="text-sm text-[#2196F3] font-medium">System Email</Label>
-                    <Input placeholder="admin@datacoffee.com" className="w-[240px] h-10 text-sm border border-gray-300 rounded-md placeholder:text-gray-500 focus:ring-2 focus:ring-[#2196F3] bg-white text-black !bg-white !text-black dark:!bg-white dark:!text-black" />
+                    <Input placeholder="admin@dataoctopus.com" className="w-[240px] h-10 text-sm border border-gray-300 rounded-md placeholder:text-gray-500 focus:ring-2 focus:ring-[#2196F3] bg-white text-black !bg-white !text-black dark:!bg-white dark:!text-black" />
                   </div>
 
                   <div>

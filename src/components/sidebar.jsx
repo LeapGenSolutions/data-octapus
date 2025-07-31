@@ -59,7 +59,7 @@ export function Sidebar({ isMobileOpen = false, onMobileClose }) {
               <div className="flex items-center gap-3">
                 <Logo size="small" />
                 <div className="flex flex-col">
-                  <span className="font-bold text-gray-900 text-lg">Data Coffee</span>
+                  <span className="font-bold text-gray-900 text-lg">Data Octopus</span>
                   <span className="text-xs text-gray-600 font-medium">Optimize Data Compliance</span>
                 </div>
               </div>

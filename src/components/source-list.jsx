@@ -168,7 +168,7 @@ export default function SourceList({
           <div>
             <h3 className="text-lg font-semibold text-gray-900">Data Sources</h3>
             <p className="text-sm text-gray-600">
-              Manage your connected data sources and brewing configurations
+              Manage your connected data sources and inkflows configurations
             </p>
           </div>
           {/* Workspace Dropdown */}

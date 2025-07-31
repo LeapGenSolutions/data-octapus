@@ -1,7 +1,7 @@
 // Demo user for authentication
 const DEMO_USER = {
   id: 1,
-  name: "Data Coffee Admin",
+  name: "Data Octopus Admin",
   username: "admin",
   role: 'admin'
 };
@@ -9,7 +9,7 @@ const DEMO_USER = {
 export const authService = {
   login: async (credentials) => {
     // Simulate authentication - in production this would validate against real backend
-    if (credentials.email === "admin@datacoffee.com" && credentials.password === "admin") {
+    if (credentials.email === "admin@dataoctopus.com" && credentials.password === "admin") {
       return DEMO_USER;
     }
     throw new Error("Invalid credentials");

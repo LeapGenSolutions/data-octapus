@@ -40,7 +40,7 @@ export function DataCoffeeCopilot() {
     {
       id: 1,
       type: "system",
-      content: "Welcome to Data Coffee Copilot! I'm here to help you brew the perfect data solutions. How can I assist you today?",
+      content: "Welcome to Data Octopus Copilot! I'm here to help you brew the perfect data solutions. How can I assist you today?",
       timestamp: new Date()
     }
   ]);
@@ -115,7 +115,7 @@ export function DataCoffeeCopilot() {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Ask Data Coffee Copilot..."
+            placeholder="Ask Data Octopus Copilot..."
             className="flex-1 border-[#e6d5c5] focus:border-[#8B5A40]"
           />
           <Button
@@ -154,7 +154,7 @@ export function PersistentDataCoffeeCopilot() {
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-gradient-to-r from-[#8B5A40] to-[#6f4536] text-white rounded-t-lg">
         <CardTitle className="text-sm font-medium flex items-center gap-2">
           <Coffee className="h-4 w-4" />
-          Data Coffee Copilot
+          Data Octopus Copilot
         </CardTitle>
         <div className="flex gap-1">
           <Button

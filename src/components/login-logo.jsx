@@ -21,7 +21,7 @@ export function LoginLogo({ className, size = "md", interactive = true }) {
       </div>
       <div className="flex flex-col">
         <span className={`font-bold text-[#6f4536] ${textSizeClasses[size]}`}>
-          Data Coffee
+          Data Octopus
         </span>
         <span className="text-xs text-[#9d6e54] font-medium">
           Brew, Blend & Anonymize
