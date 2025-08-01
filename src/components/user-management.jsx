@@ -64,6 +64,7 @@ import { BACKEND_URL } from '../constants';
 
 
 function UserManagement() {
+
   const [sourceError, setSourceError] = useState(false);
   const [techniquesError, setTechniquesError] = useState(false);
   const [destinationError, setDestinationError] = useState(false);
@@ -114,13 +115,19 @@ function UserManagement() {
 
   // Fetch available sources for the selected workspace
   const { sources: availableSources, isLoading: sourcesLoading, error: sourcesError } = useFetchSources(selectedWorkspace.id);
-  const { sources: pipelineSources, 
-    isLoading: pipelineLoading, 
-    error: pipelineError, 
+  const { sources: pipelineSources,
+    isLoading: pipelineLoading,
+    error: pipelineError,
     refetch: refetchPipelines } = useFetchPipeline(selectedWorkspace.id);
 
   const savePipeline = useSavePipeline();
   const patchPipeline = usePatchPipeline();
+  const ediSources = Array.isArray(availableSources)
+    ? availableSources.filter(src => (src?.configuration?.sourceType || src?.type || '').toLowerCase() === 'edi')
+    : [];
+  const nonEdiSources = Array.isArray(availableSources)
+    ? availableSources.filter(src => (src?.configuration?.sourceType || src?.type || '').toLowerCase() !== 'edi')
+    : [];
 
   // Set the first workspace when workspaces are loaded
   useEffect(() => {
@@ -130,10 +137,10 @@ function UserManagement() {
   }, [workspaces, selectedWorkspace]);
 
   useEffect(() => {
-  if (savePipeline.isSuccess || patchPipeline.isSuccess) {
-    refetchPipelines();
-  }
-}, [savePipeline.isSuccess, patchPipeline.isSuccess]);
+    if (savePipeline.isSuccess || patchPipeline.isSuccess) {
+      refetchPipelines();
+    }
+  }, [savePipeline.isSuccess, patchPipeline.isSuccess]);
 
   // Sample user data with medical context (fallback for demo)
   const [pipelines, setPipelines] = useState([]);
@@ -301,35 +308,35 @@ function UserManagement() {
   };
 
   const getTechniqueBadge = (technique) => {
-  const techniqueConfig = {
-    anonymization: {
-      className: "bg-[#9C27B0] text-white",
-      label: "Anonymization",
-    },
-    tokenization: {
-      className: "bg-[#2196F3] text-white",
-      label: "Tokenization",
-    },
-    masking: { className: "bg-[#FF9800] text-white", label: "Masking" },
-    generate: { className: "bg-[#FF9800] text-white", label: "Masking" },
-  };
-
-  let config;
-  if (technique && techniqueConfig[technique.toLowerCase()]) {
-    config = techniqueConfig[technique.toLowerCase()];
-  } else {
-    config = {
-      className: "bg-gray-300 text-gray-800",
-      label: technique || "Unknown",
+    const techniqueConfig = {
+      anonymization: {
+        className: "bg-[#9C27B0] text-white",
+        label: "Anonymization",
+      },
+      tokenization: {
+        className: "bg-[#2196F3] text-white",
+        label: "Tokenization",
+      },
+      masking: { className: "bg-[#FF9800] text-white", label: "Masking" },
+      generate: { className: "bg-[#FF9800] text-white", label: "Masking" },
     };
-  }
 
-  return (
-    <Badge className={`${config.className} text-xs px-2 py-1 rounded-md`}>
-      {config.label}
-    </Badge>
-  );
-};
+    let config;
+    if (technique && techniqueConfig[technique.toLowerCase()]) {
+      config = techniqueConfig[technique.toLowerCase()];
+    } else {
+      config = {
+        className: "bg-gray-300 text-gray-800",
+        label: technique || "Unknown",
+      };
+    }
+
+    return (
+      <Badge className={`${config.className} text-xs px-2 py-1 rounded-md`}>
+        {config.label}
+      </Badge>
+    );
+  };
 
 
   const handleCreateUserPipeline = async () => {
@@ -349,156 +356,160 @@ function UserManagement() {
     }
 
     if (currentStep === 2) {
-  let hasError = false;
+      let hasError = false;
 
-  if (!newUser.sourceDatabase) {
-    setSourceError(true);
-    hasError = true;
-  } else {
-    setSourceError(false);
-  }
+      if (!newUser.sourceDatabase) {
+        setSourceError(true);
+        hasError = true;
+      } else {
+        setSourceError(false);
+      }
 
-  const destinationValid =
-    destinationType === "connection"
-      ? connectionString.trim() !== ""
-      : newUser.destinationDatabase !== "";
+      const destinationValid =
+        destinationType === "connection"
+          ? connectionString.trim() !== ""
+          : newUser.destinationDatabase !== "";
 
-  if (!destinationValid) {
-    setDestinationError(true);
-    hasError = true;
-  } else {
-    setDestinationError(false);
-  }
+      if (!destinationValid) {
+        setDestinationError(true);
+        hasError = true;
+      } else {
+        setDestinationError(false);
+      }
 
-  if (selectedTechniques.length === 0) {
-    setTechniquesError(true);
-    hasError = true;
-  } else {
-    setTechniquesError(false);
-  }
+      if (selectedTechniques.length === 0) {
+        setTechniquesError(true);
+        hasError = true;
+      } else {
+        setTechniquesError(false);
+      }
 
-  if (hasError) {
-    toast({
-      title: "Validation Error",
-      description: "Please fill in all required fields and select at least one security technique",
-      variant: "destructive",
-    });
-    return;
-  }
+      if (hasError) {
+        toast({
+          title: "Validation Error",
+          description: "Please fill in all required fields and select at least one security technique",
+          variant: "destructive",
+        });
+        return;
+      }
 
-  setCurrentStep(3);
-  return;
-}
+      setCurrentStep(3);
+      return;
+    }
 
     if (currentStep === 3) {
-  if (!selectedProcessingAgent && !isEditing) {
-    setAgentError(true);
-    toast({
-      title: "Validation Error",
-      description: "Please select a processing agent",
-      variant: "destructive",
-    });
-    return;
-  }
-  setAgentError(false);
-  setCurrentStep(4);
-  return;
-}
+      if (!selectedProcessingAgent && !isEditing) {
+        setAgentError(true);
+        toast({
+          title: "Validation Error",
+          description: "Please select a processing agent",
+          variant: "destructive",
+        });
+        return;
+      }
+      setAgentError(false);
+      setCurrentStep(4);
+      return;
+    }
 
     if (currentStep === 4) {
-  if (!runConfiguration.schedule) {
-    setScheduleError(true);
-    toast({
-      title: "Validation Error",
-      description: "Please select a run schedule",
-      variant: "destructive",
-    });
-    return;
-  }
-  setScheduleError(false);
+      if (!runConfiguration.schedule) {
+        setScheduleError(true);
+        toast({
+          title: "Validation Error",
+          description: "Please select a run schedule",
+          variant: "destructive",
+        });
+        return;
+      }
+      setScheduleError(false);
 
-    // Find source and destination IDs from availableSources
-    let sourceId = "", destId = "";
-    if (Array.isArray(availableSources)) {
-      const srcObj = availableSources.find(src => src?.configuration?.sourceName === newUser.sourceDatabase);
-      sourceId = srcObj?.id;
-      const dstObj = availableSources.find(src => src?.configuration?.sourceName === newUser.destinationDatabase);
-      destId = dstObj?.id || "";
+      // Find source and destination IDs from availableSources
+      let sourceId = "", destId = "";
+      if (Array.isArray(availableSources)) {
+        const srcObj = availableSources.find(src => src?.configuration?.sourceName === newUser.sourceDatabase);
+        sourceId = srcObj?.id;
+        const dstObj = availableSources.find(src => src?.configuration?.sourceName === newUser.destinationDatabase);
+        destId = dstObj?.id || "";
+      }
+
+      const pipeline = {
+        ...(isEditing && editPipeline ? { id: editPipeline.id } : {}),
+        name: newUser.name,
+        source: newUser.sourceDatabase,
+        sourceDatabaseId: sourceId,
+        destination: destinationType === "connection" ? connectionString : newUser.destinationDatabase,
+        destinationDatabaseId: destinationType === "connection" ? "" : destId,
+        technique: selectedTechniques.join(", "),
+        processingAgent: selectedProcessingAgent,
+        customPrompt: newUser.customPrompt,
+        schedule: runConfiguration.schedule,
+        notifications: runConfiguration.notifications,
+        auto_close: runConfiguration.autoClose,
+        enable_surround_AI: enableSurroundAI,
+        status: newUser.status || "Active",
+        workspaceID: selectedWorkspace.id,
+        workspaceName: selectedWorkspace.workspaceName,
+        created: isEditing && editPipeline ? editPipeline.created : new Date().toLocaleDateString(),
+        destinationType,
+        connectionString,
+        ediSource: newUser.ediSource || "",
+        includeEdiData: !!newUser.includeEdiData,
+        preserveOriginalData: !!newUser.preserveOriginalData,
+      };
+      console.log(pipeline);
+
+      if (isEditing && editPipeline) {
+        const userEmail = editPipeline.user_id || editPipeline.email || 'unknown@example.com';
+
+        patchPipeline.mutate({
+          email: userEmail,
+          pipelineId: editPipeline.id,
+          pipeline,
+        }, {
+          onSuccess: (data) => {
+            toast({
+              title: "Pipeline Updated",
+              description: `${data.name} has been updated.`,
+              variant: "success",
+            });
+            setPipelines(users => users.map(u => u.id === data.id ? data : u));
+            resetForm();
+            setShowCreateUserDialog(false);
+            setIsEditing(false);
+            setEditPipeline(null);
+          },
+          onError: (error) => {
+            toast({
+              title: "API Error",
+              description: error?.message || "Failed to update pipeline on server.",
+              variant: "destructive",
+            });
+          }
+        });
+      } else {
+        savePipeline.mutateAsync(pipeline, {
+          onSuccess: (data) => {
+            toast({
+              title: "Pipeline Created",
+              description: `${data.name} has been added successfully.`,
+              variant: "success",
+            });
+            setPipelines([...pipelines, data]);
+            resetForm();
+            setShowCreateUserDialog(false);
+          },
+          onError: (error) => {
+            toast({
+              title: "API Error",
+              description: error?.message || "Failed to save pipeline to server.",
+              variant: "destructive",
+            });
+          }
+        });
+      }
     }
-
-    const pipeline = {
-      ...(isEditing && editPipeline ? { id: editPipeline.id } : {}),
-      name: newUser.name,
-      source: newUser.sourceDatabase,
-      sourceDatabaseId: sourceId,
-      destination: destinationType === "connection" ? connectionString : newUser.destinationDatabase,
-      destinationDatabaseId: destinationType === "connection" ? "" : destId,
-      technique: selectedTechniques.join(", "),
-      processingAgent: selectedProcessingAgent,
-      customPrompt: newUser.customPrompt,
-      schedule: runConfiguration.schedule,
-      notifications: runConfiguration.notifications,
-      auto_close: runConfiguration.autoClose,          
-      enable_surround_AI: enableSurroundAI,           
-      status: newUser.status || "Active",
-      workspaceID: selectedWorkspace.id,
-      workspaceName: selectedWorkspace.workspaceName,
-      created: isEditing && editPipeline ? editPipeline.created : new Date().toLocaleDateString(),
-      destinationType,
-      connectionString,
-    };
-
-    if (isEditing && editPipeline) {
-      const userEmail = editPipeline.user_id || editPipeline.email || 'unknown@example.com';
-
-      patchPipeline.mutate({
-        email: userEmail,
-        pipelineId: editPipeline.id,
-        pipeline,
-      }, {
-        onSuccess: (data) => {
-          toast({
-            title: "Pipeline Updated",
-            description: `${data.name} has been updated.`,
-            variant: "success",
-          });
-          setPipelines(users => users.map(u => u.id === data.id ? data : u));
-          resetForm();
-          setShowCreateUserDialog(false);
-          setIsEditing(false);
-          setEditPipeline(null);
-        },
-        onError: (error) => {
-          toast({
-            title: "API Error",
-            description: error?.message || "Failed to update pipeline on server.",
-            variant: "destructive",
-          });
-        }
-      });
-    } else {
-      savePipeline.mutateAsync(pipeline, {
-        onSuccess: (data) => {
-          toast({
-            title: "Pipeline Created",
-            description: `${data.name} has been added successfully.`,
-            variant: "success",
-          });
-          setPipelines([...pipelines, data]);
-          resetForm();
-          setShowCreateUserDialog(false);
-        },
-        onError: (error) => {
-          toast({
-            title: "API Error",
-            description: error?.message || "Failed to save pipeline to server.",
-            variant: "destructive",
-          });
-        }
-      });
-    }
-  }
-};
+  };
 
   const resetForm = () => {
     setNewUser({
@@ -531,35 +542,35 @@ function UserManagement() {
 
   const handleBack = () => {
     if (currentStep === 2) {
-    setSourceError(false);
-    setDestinationError(false);
-    setTechniquesError(false);
-  }
-  if (currentStep === 3) {
-  setAgentError(false);
-}
-if (currentStep === 4) {
-  setScheduleError(false);
-}
+      setSourceError(false);
+      setDestinationError(false);
+      setTechniquesError(false);
+    }
+    if (currentStep === 3) {
+      setAgentError(false);
+    }
+    if (currentStep === 4) {
+      setScheduleError(false);
+    }
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
   };
 
- const handleTechniqueToggle = (technique) => {
-  setSelectedTechniques((prev) => {
-    const updated = prev.includes(technique)
-      ? prev.filter((t) => t !== technique)
-      : [...prev, technique];
+  const handleTechniqueToggle = (technique) => {
+    setSelectedTechniques((prev) => {
+      const updated = prev.includes(technique)
+        ? prev.filter((t) => t !== technique)
+        : [...prev, technique];
 
-    //  Clear error when at least one technique is selected
-    if (updated.length > 0) {
-      setTechniquesError(false);
-    }
+      //  Clear error when at least one technique is selected
+      if (updated.length > 0) {
+        setTechniquesError(false);
+      }
 
-    return updated;
-  });
-};
+      return updated;
+    });
+  };
 
 
   const handleDeleteUser = (userId) => {
@@ -702,6 +713,9 @@ if (currentStep === 4) {
       techniques: pipeline.technique ? pipeline.technique.split(", ") : [],
       customPrompt: pipeline.customPrompt || "",
       status: pipeline.status,
+      ediSource: pipeline.ediSource || "",
+      includeEdiData: !!pipeline.includeEdiData,
+      preserveOriginalData: !!pipeline.preserveOriginalData,
     });
     setSelectedTechniques(pipeline.technique ? pipeline.technique.split(", ") : []);
     setDestinationType(pipeline.destinationType || "dataset");
@@ -848,7 +862,7 @@ if (currentStep === 4) {
                     <Label htmlFor="name" className="text-gray-700">
                       Enter Pipeline Name:
                     </Label>
-                      <Input
+                    <Input
                       id="name"
                       value={newUser.name}
                       onChange={(e) => {
@@ -860,9 +874,8 @@ if (currentStep === 4) {
                         }
                       }}
                       placeholder="e.g. Customer Data Anonymization"
-                      className={`input-override !bg-white !focus:border-[#2196F3] !text-gray-900 h-12 ${
-                        nameError ? "!border-red-500 ring-1 ring-red-500" : "!border-gray-300"
-                      }`}
+                      className={`input-override !bg-white !focus:border-[#2196F3] !text-gray-900 h-12 ${nameError ? "!border-red-500 ring-1 ring-red-500" : "!border-gray-300"
+                        }`}
                       style={{
                         backgroundColor: "white !important",
                         color: "#111827 !important",
@@ -878,53 +891,51 @@ if (currentStep === 4) {
               )}
 
               {currentStep === 2 && (
-  <div className="space-y-8 py-6">
-    {/* Select Data Source Section */}
-    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-      <div className="border-b border-gray-300 pb-3 mb-4">
-        <h3 className="text-lg font-semibold text-gray-800">Select Data Source</h3>
-      </div>
-      <p className="text-sm text-gray-600 mb-6">
-        Select the data source or enter a connection string to identify where data will be pulled from. Then choose one or more data security techniques to apply during processing.
-      </p>
-      <Select
-      value={newUser.sourceDatabase}
-      onValueChange={(value) => {
-        setNewUser({ ...newUser, sourceDatabase: value });
+                <div className="space-y-8 py-6">
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                    <div className="border-b border-gray-300 pb-3 mb-4">
+                      <h3 className="text-lg font-semibold text-gray-800">Select Data Source</h3>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-6">
+                      Select the data source or enter a connection string to identify where data will be pulled from. Then choose one or more data security techniques to apply during processing.
+                    </p>
+                    <Select
+                      value={newUser.sourceDatabase}
+                      onValueChange={(value) => {
+                        setNewUser({ ...newUser, sourceDatabase: value });
 
-        if (value.trim()) {
-          setSourceError(false); // Clear error as soon as a valid value is selected
-        }
-      }}
-      disabled={sourcesLoading}
-    >
+                        if (value.trim()) {
+                          setSourceError(false); // Clear error as soon as a valid value is selected
+                        }
+                      }}
+                      disabled={sourcesLoading}
+                    >
 
-        <SelectTrigger
-          className={`!bg-white !text-gray-900 h-12 ${
-            sourceError ? "!border-red-500 ring-1 ring-red-500" : "!border-gray-300"
-          }`}
-          style={{ backgroundColor: "white", color: "#111827" }}
-        >
-          <SelectValue placeholder={sourcesLoading ? "Loading sources..." : "Select a data source"} />
-        </SelectTrigger>
-        <SelectContent className="bg-white">
-          {sourcesLoading && <div className="px-4 py-2 text-gray-500">Loading...</div>}
-          {sourcesError && <div className="px-4 py-2 text-red-500">Error loading sources</div>}
-          {Array.isArray(availableSources) && availableSources.length > 0 ? (
-            availableSources.map((src) => (
-              <SelectItem key={src.id || src.value || src} value={src?.configuration?.sourceName}>
-                {src?.configuration?.sourceName}
-              </SelectItem>
-            ))
-          ) : (
-            !sourcesLoading && !sourcesError && (
-              <div className="px-4 py-2 text-gray-500">No sources found</div>
-            )
-          )}
-        </SelectContent>
-      </Select>
-      {sourceError && <p className="text-sm text-red-600 mt-1">Data source is required.</p>}
-    </div>
+                      <SelectTrigger
+                        className={`!bg-white !text-gray-900 h-12 ${sourceError ? "!border-red-500 ring-1 ring-red-500" : "!border-gray-300"
+                          }`}
+                        style={{ backgroundColor: "white", color: "#111827" }}
+                      >
+                        <SelectValue placeholder={sourcesLoading ? "Loading sources..." : "Select a data source"} />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        {sourcesLoading && <div className="px-4 py-2 text-gray-500">Loading...</div>}
+                        {sourcesError && <div className="px-4 py-2 text-red-500">Error loading sources</div>}
+                        {Array.isArray(nonEdiSources) && nonEdiSources.length > 0 ? (
+                          nonEdiSources.map((src) => (
+                            <SelectItem key={src.id || src.value || src} value={src?.configuration?.sourceName}>
+                              {src?.configuration?.sourceName}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          !sourcesLoading && !sourcesError && (
+                            <div className="px-4 py-2 text-gray-500">No sources found</div>
+                          )
+                        )}
+                      </SelectContent>
+                    </Select>
+                    {sourceError && <p className="text-sm text-red-600 mt-1">Data source is required.</p>}
+                  </div>
 
                   {/* Select Security Techniques Section */}
                   <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
@@ -997,69 +1008,103 @@ if (currentStep === 4) {
                       </Button>
                     </div>
 
-      {destinationType === "connection" ? (
-        <>
-          <Input
-          value={connectionString}
-          onChange={(e) => {
-            const value = e.target.value;
-            setConnectionString(value);
+                    {destinationType === "connection" ? (
+                      <>
+                        <Input
+                          value={connectionString}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setConnectionString(value);
+                            if (value.trim()) {
+                              setDestinationError(false);
+                            }
+                          }}
+                          placeholder="Enter full connection string (e.g., postgresql://user:pass@host:5432/dbname)"
+                          className={`input-override !bg-white !text-gray-900 h-12 ${destinationError ? "!border-red-500 ring-1 ring-red-500" : "!border-gray-300"}`}
+                          style={{ backgroundColor: "white", color: "#111827", border: "1px solid #d1d5db" }}
+                        />
+                        {destinationError && (
+                          <p className="text-sm text-red-600 mt-1">Connection string is required.</p>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <Select
+                          value={newUser.destinationDatabase}
+                          onValueChange={(value) => {
+                            setNewUser({ ...newUser, destinationDatabase: value });
+                            if (value.trim()) {
+                              setDestinationError(false);
+                            }
+                          }}
+                        >
+                          <SelectTrigger
+                            className={`!bg-white !text-gray-900 h-12 ${destinationError ? "!border-red-500 ring-1 ring-red-500" : "!border-gray-300"}`}
+                            style={{ backgroundColor: "white", color: "#111827" }}
+                          >
+                            <SelectValue placeholder="Select from saved datasets" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white">
+                            {Array.isArray(nonEdiSources) &&
+                              nonEdiSources.map((src) => (
+                                <SelectItem key={src.id || src.value || src} value={src?.configuration?.sourceName}>
+                                  {src?.configuration?.sourceName}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                        {destinationError && <p className="text-sm text-red-600 mt-1">Dataset is required.</p>}
+                      </>
+                    )}
+                    <div className="flex items-center gap-6 mt-6">
+                      <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                        <input
+                          type="checkbox"
+                          checked={!!newUser.includeEdiData}
+                          onChange={e => setNewUser({ ...newUser, includeEdiData: e.target.checked })}
+                          className="accent-blue-600 w-4 h-4"
+                        />
+                        Include EDI data
+                      </label>
+                      <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                        <input
+                          type="checkbox"
+                          checked={!!newUser.preserveOriginalData}
+                          onChange={e => setNewUser({ ...newUser, preserveOriginalData: e.target.checked })}
+                          className="accent-blue-600 w-4 h-4"
+                        />
+                        Preserve original data
+                      </label>
+                    </div>
 
-            //  Clear destination error when user types something valid
-            if (value.trim()) {
-              setDestinationError(false);
-            }
-          }}
-          placeholder="Enter full connection string (e.g., postgresql://user:pass@host:5432/dbname)"
-          className={`input-override !bg-white !text-gray-900 h-12 ${
-            destinationError ? "!border-red-500 ring-1 ring-red-500" : "!border-gray-300"
-          }`}
-          style={{
-            backgroundColor: "white",
-            color: "#111827",
-            border: "1px solid #d1d5db",
-          }}
-        />
-        {destinationError && (
-          <p className="text-sm text-red-600 mt-1">Connection string is required.</p>
-        )}
-        </>
-      ) : (
-        <>
-         <Select
-          value={newUser.destinationDatabase}
-          onValueChange={(value) => {
-            setNewUser({ ...newUser, destinationDatabase: value });
-
-            //  Clear error immediately when a dataset is selected
-            if (value.trim()) {
-              setDestinationError(false);
-            }
-          }}
-        >
-            <SelectTrigger
-              className={`!bg-white !text-gray-900 h-12 ${
-                destinationError ? "!border-red-500 ring-1 ring-red-500" : "!border-gray-300"
-              }`}
-              style={{ backgroundColor: "white", color: "#111827" }}
-            >
-              <SelectValue placeholder="Select from saved datasets" />
-            </SelectTrigger>
-            <SelectContent className="bg-white">
-              {Array.isArray(availableSources) &&
-                availableSources.map((src) => (
-                  <SelectItem key={src.id || src.value || src} value={src?.configuration?.sourceName}>
-                    {src?.configuration?.sourceName}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-          {destinationError && <p className="text-sm text-red-600 mt-1">Dataset is required.</p>}
-        </>
-      )}
-    </div>
-  </div>
-)}
+                    {/* EDI Source Dropdown */}
+                    {newUser.includeEdiData && (
+                      <div className="mt-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Select EDI Datasource</label>
+                        <Select
+                          value={newUser.ediSource || ""}
+                          onValueChange={value => setNewUser({ ...newUser, ediSource: value })}
+                        >
+                          <SelectTrigger className="!bg-white !text-gray-900 h-12 !border-gray-300" style={{ backgroundColor: "white", color: "#111827" }}>
+                            <SelectValue placeholder="Select EDI source" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white">
+                            {Array.isArray(ediSources) && ediSources.length > 0 ? (
+                              ediSources.map(src => (
+                                <SelectItem key={src.id || src.value || src} value={src?.configuration?.sourceName}>
+                                  {src?.configuration?.sourceName}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <div className="px-4 py-2 text-gray-500">No EDI sources found</div>
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {currentStep === 3 && (
                 <div className="space-y-6 py-6">
@@ -1090,20 +1135,19 @@ if (currentStep === 4) {
                         // Remove duplicates
                         allowedAgents = Array.from(new Set(allowedAgents));
                         return (
-                      <Select
-                      value={selectedProcessingAgent}
-                      onValueChange={(value) => {
-                        setSelectedProcessingAgent(value);
+                          <Select
+                            value={selectedProcessingAgent}
+                            onValueChange={(value) => {
+                              setSelectedProcessingAgent(value);
 
-                        if (value.trim()) {
-                          setAgentError(false);
-                        }
-                        }}
-                           >
+                              if (value.trim()) {
+                                setAgentError(false);
+                              }
+                            }}
+                          >
                             <SelectTrigger
-                              className={`!bg-white !text-gray-900 h-12 ${
-                                agentError ? "!border-red-500 ring-1 ring-red-500" : "!border-gray-300"
-                              }`}
+                              className={`!bg-white !text-gray-900 h-12 ${agentError ? "!border-red-500 ring-1 ring-red-500" : "!border-gray-300"
+                                }`}
                               style={{ backgroundColor: 'white', color: '#111827' }}
                             >
                               <SelectValue placeholder="Select a processing agent" />
@@ -1154,19 +1198,18 @@ if (currentStep === 4) {
                           Run Schedule
                         </Label>
                         <Select
-                        value={runConfiguration.schedule}
-                        onValueChange={(value) => {
-                          setRunConfiguration({ ...runConfiguration, schedule: value });
+                          value={runConfiguration.schedule}
+                          onValueChange={(value) => {
+                            setRunConfiguration({ ...runConfiguration, schedule: value });
 
-                          if (value.trim()) {
-                            setScheduleError(false);
-                          }
-                        }}
-                         >
+                            if (value.trim()) {
+                              setScheduleError(false);
+                            }
+                          }}
+                        >
                           <SelectTrigger
-                            className={`!bg-white !text-gray-900 h-12 ${
-                              scheduleError ? "!border-red-500 ring-1 ring-red-500" : "!border-gray-300"
-                            }`}
+                            className={`!bg-white !text-gray-900 h-12 ${scheduleError ? "!border-red-500 ring-1 ring-red-500" : "!border-gray-300"
+                              }`}
                             style={{ backgroundColor: 'white', color: '#111827' }}
                           >
                             <SelectValue placeholder="Select run schedule" />
@@ -1265,14 +1308,14 @@ if (currentStep === 4) {
                   <Button
                     variant="outline"
                     onClick={() => {
-                        resetForm(); // ← resets nameError and form state
-                        setShowCreateUserDialog(false);
-                      }}
-                      className="border-gray-300 text-gray-700 px-6 py-2"
-                    >
-                      Cancel
-                    </Button>
-                  )}
+                      resetForm(); // ← resets nameError and form state
+                      setShowCreateUserDialog(false);
+                    }}
+                    className="border-gray-300 text-gray-700 px-6 py-2"
+                  >
+                    Cancel
+                  </Button>
+                )}
                 <Button
                   onClick={handleCreateUserPipeline}
                   className="bg-[#2196F3] hover:bg-[#1976D2] text-white px-8 py-2 font-medium"
