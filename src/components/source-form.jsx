@@ -136,14 +136,14 @@ const getValidationSchema = (sourceType, location) => {
     });
   }
 
-  if (sourceType === "files" && location === "on-prem") {
+  if ((sourceType === "files" || sourceType === "edi") && location === "on-prem") {
     return schema.extend({
       filePath: z.string().min(1, "File path is required"),
       fileFormat: z.string().min(1, "File format is required"),
     });
   }
 
-  if (sourceType === "files" && location === "cloud") {
+  if ((sourceType === "files" || sourceType === "edi") && location === "cloud") {
     return schema
       .extend({
         cloudProvider: z.string().min(1, "Cloud provider is required"),
@@ -607,6 +607,7 @@ export function SourceForm({ mode = "add", initialSource,
           },
         ];
       case "files":
+      case "edi":
         return [
           {
             value: "all",
@@ -712,6 +713,7 @@ export function SourceForm({ mode = "add", initialSource,
             fields: "fields",
           };
         case "files":
+        case "edi":
         case "blob":
           return {
             single: "file",
@@ -805,6 +807,7 @@ export function SourceForm({ mode = "add", initialSource,
         case "mongodb":
           return "Write a MongoDB aggregation pipeline to filter and transform your data:";
         case "files":
+        case "edi":
           return "Define file parsing rules including file type, schema, and delimiters:";
         case "blob":
           return "Define file parsing rules including schema, encoding, and structure settings:";
@@ -820,6 +823,7 @@ export function SourceForm({ mode = "add", initialSource,
         case "mongodb":
           return "MongoDB Pipeline Editor";
         case "files":
+        case "edi":
           return "File Parsing Rules Editor";
         case "blob":
           return "Blob Parsing Rules Editor";
@@ -1812,7 +1816,7 @@ export function SourceForm({ mode = "add", initialSource,
     }
 
     // Files Configuration
-    if (normalizedSourceType === "files") {
+    if (normalizedSourceType === "files" || normalizedSourceType === "edi") {
       const isAzure = currentLocation === "cloud" && form.getValues("cloudProvider") === "azure";
       const authType = form.watch("authType");
       let fields = [];
@@ -1889,7 +1893,8 @@ export function SourceForm({ mode = "add", initialSource,
               { value: "png", label: "PNG" },
               { value: "jpeg", label: "JPEG" },
               { value: "pdf", label: "PDF" },
-              { value: "jpg", label: "JPG" }
+              { value: "jpg", label: "JPG" },
+              { value: "edi", label: "EDI" }
             ]
           }
         ];
@@ -1964,6 +1969,7 @@ export function SourceForm({ mode = "add", initialSource,
             options: [
               { value: "csv", label: "CSV" },
               { value: "json", label: "JSON" },
+              { value: "edi", label: "EDI" },
               { value: "png", label: "PNG" },
               { value: "jpeg", label: "JPEG" },
               { value: "pdf", label: "PDF" },
