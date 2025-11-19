@@ -9,36 +9,36 @@ import {
   LogOut,
   X
 } from "lucide-react";
-
+ 
 import { useSelector } from "react-redux";
 import { useLocation as useWouterLocation } from "wouter";
 import SidebarNav from "./SidebarNav";
-
+ 
 const navigationBase = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
   { name: "Admin Panel", href: "/admin", icon: Settings, role: "barista" },
-  { name: "User Management", href: "/user-management", icon: Users },
+  { name: "Pipeline Management", href: "/pipeline-management", icon: Users },
   { name: "Control Panel", href: "/control-panel", icon: LayoutGrid },
 ];
-
-
+ 
+ 
 export function Sidebar({ isMobileOpen = false, onMobileClose }) {
   const [location] = useLocation();
   const [, wouterNavigate] = useWouterLocation();
   const user = useSelector((state) => state.me.me);
   const workspaces = useSelector((state) => state.workspaces.workspaces);
-
+ 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
     window.location.href = '/';
   };
-
+ 
   const navigation = navigationBase.filter(item => {
     if (!item.role) return true;
     if (!user || !user.roles) return false;
     return user.roles.includes(item.role);
   });
-
+ 
   return (
     <>
       {isMobileOpen && (
@@ -47,7 +47,7 @@ export function Sidebar({ isMobileOpen = false, onMobileClose }) {
           onClick={onMobileClose}
         />
       )}
-
+ 
       <div className="flex">
         <div className={cn(
           "fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-white via-gray-50 to-gray-100 border-r border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
@@ -71,7 +71,7 @@ export function Sidebar({ isMobileOpen = false, onMobileClose }) {
                 <X className="h-4 w-4" />
               </Button>
             </div>
-
+ 
             {/* Navigation */}
             <SidebarNav
               navigation={navigation}
@@ -80,7 +80,7 @@ export function Sidebar({ isMobileOpen = false, onMobileClose }) {
               wouterNavigate={wouterNavigate}
               onMobileClose={onMobileClose}
             />
-
+ 
             {/* Footer */}
             <div className="p-4 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-white">
               <Button
@@ -98,3 +98,4 @@ export function Sidebar({ isMobileOpen = false, onMobileClose }) {
     </>
   );
 }
+ 
