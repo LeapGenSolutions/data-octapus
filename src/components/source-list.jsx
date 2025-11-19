@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from "react";
-import { useSelector } from 'react-redux';
 import {
   Search,
   Plus,
@@ -38,13 +37,12 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "../components/ui/pagination";
-import { SourceDetailsModal } from "./source-details-modal";
-
 import { toast } from "./ui/toaster.jsx";
+import { SourceDetailsModal } from "./source-details-modal";
 
 export default function SourceList({
   sources=[], onAddSource, onEditSource,
-  onDeleteSource, selectedWorkspace, setSelectedWorkspace, onRefresh
+  onDeleteSource, selectedWorkspace, setSelectedWorkspace, onRefresh, onAddWorkspace, workspaces=[]
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortField, setSortField] = useState("sourceName");
@@ -58,15 +56,14 @@ export default function SourceList({
   const itemsPerPage = 10;
 
   // Filter sources based on search term
-  const filteredSources = useMemo(() => {
-    const term = searchTerm.toLowerCase();
-    return sources.filter(
-      (source) =>
-        source.sourceName.toLowerCase().includes(term) ||
-        source.type.toLowerCase().includes(term) ||
-        source.status.toLowerCase().includes(term)
-    );
-  }, [sources, searchTerm]);
+const filteredSources = useMemo(() => {
+  const term = searchTerm.toLowerCase();
+  return sources.filter((source) =>
+    (source.configuration?.sourceName ?? "").toLowerCase().startsWith(term) ||
+    (source.configuration?.sourceType ?? "").toLowerCase().startsWith(term) ||
+    (source.status ?? "").toLowerCase().startsWith(term)
+  );
+}, [sources, searchTerm]);
 
   // Sort sources
   const sortedSources = useMemo(() => {
@@ -157,9 +154,6 @@ export default function SourceList({
     );
   };
 
-  // Workspace dropdown state (Redux)
-  const workspaces = useSelector((state) => state.workspaces.workspaces) || [];
-
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -168,7 +162,7 @@ export default function SourceList({
           <div>
             <h3 className="text-lg font-semibold text-gray-900">Data Sources</h3>
             <p className="text-sm text-gray-600">
-              Manage your connected data sources and inkflows configurations
+              Manage your connected data sources and brewing configurations
             </p>
           </div>
           {/* Workspace Dropdown */}
@@ -178,7 +172,7 @@ export default function SourceList({
               value={selectedWorkspace?.id || ""}
               onChange={e => {
                 const ws = workspaces.find(w => w.id === e.target.value);
-                setSelectedWorkspace(ws || "");
+                setSelectedWorkspace(ws || null);
               }}
               disabled={workspaces.length === 0}
             >
@@ -209,6 +203,13 @@ export default function SourceList({
             <Plus className="h-4 w-4" />
             Add Source
           </Button>
+          <Button
+            onClick={onAddWorkspace}
+            className="bg-[#2196F3] hover:bg-[#1976D2] text-white flex items-center gap-2 rounded-lg"
+          >
+            <Plus className="h-4 w-4" />
+            Add Workspace
+           </Button>
         </div>
       </div>
 
@@ -281,7 +282,7 @@ export default function SourceList({
                     </TableCell>
                     <TableCell className="font-medium text-[#2196F3]">{source?.configuration?.sourceName || "Unnamed"}</TableCell>
                     <TableCell className="text-gray-600">{source?.configuration?.sourceType || "N/A"}</TableCell>
-                    <TableCell className="text-gray-600">{source.location || 'N/A'}</TableCell>
+                    <TableCell className="text-gray-600">{source?.configuration?.location || 'N/A'}</TableCell>
                     <TableCell className="text-gray-600">{source.configuration?.authType || source.configuration?.authMethod || 'N/A'}</TableCell>
                     <TableCell>{getStatusBadge(source.status?.toLowerCase() || 'active')}</TableCell>
                     <TableCell>

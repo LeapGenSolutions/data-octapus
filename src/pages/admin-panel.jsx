@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { Tabs, TabsContent } from "../components/ui/tabs";
 import { StatisticsCards } from "../components/statistics-cards";
 import { SourceForm } from "../components/source-form";
 import SourceList from "../components/source-list";
@@ -9,19 +9,23 @@ import { useSelector } from "react-redux";
 import useFetchSources from "../hooks/useFetchSources";
 import { useLocation } from "wouter";
 import useDeleteSource from '../hooks/useDeleteSource';
-
+import WorkspaceForm from "../components/workspace-form";
+import { useDispatch } from 'react-redux';
+import { workspacesActions } from '../redux/workspace-slice';
 export default function AdminPanel() {
   const [location, setLocation] = useLocation();
+  const dispatch = useDispatch();
   const [sources, setSources] = useState([]);
 
   const isAdd = location === "/admin/source";
   const isEdit = location.startsWith("/admin/source/edit/");
   const editingId = isEdit ? location.split("/").pop() : null;
+  const isAddWorkspace = location === "/admin/workspace";
 
 
-  //const currentUserEmail = useSelector((state) => state.me.me?.email);
+  const currentUserEmail = useSelector((state) => state.me.me?.email);
   const workspaces = useSelector((state) => state.workspaces.workspaces);
-  const [selectedWorkspace, setSelectedWorkspace] = useState(() => workspaces[0] || []);
+  const [selectedWorkspace, setSelectedWorkspace] = useState(null);
   const { sources: fetchedSources, isLoading, error, refetch } = useFetchSources(selectedWorkspace?.id);
 
   const deleteSourceMutation = useDeleteSource();
@@ -35,14 +39,16 @@ export default function AdminPanel() {
   const editingSource = isEdit
     ? sources.find((s) => String(s.id) === editingId)
     : null;
-  //console.log("Selected workspace ID:", selectedWorkspace?.id);
 
-  // Set default workspace
   useEffect(() => {
-    if (Array.isArray(workspaces) && workspaces.length > 0 && !selectedWorkspace?.id) {
-      setSelectedWorkspace(workspaces[0]);
-    }
-  }, [workspaces, selectedWorkspace?.id]);
+  if (
+    Array.isArray(workspaces) &&
+    workspaces.length > 0 &&
+    (!selectedWorkspace?.id || !workspaces.some(ws => ws.id === selectedWorkspace.id))
+  ) {
+    setSelectedWorkspace(workspaces[0]); 
+  }
+  }, [workspaces, selectedWorkspace, selectedWorkspace?.id]);
 
   // Fetch data sources from Cosmos
 
@@ -51,7 +57,8 @@ export default function AdminPanel() {
     setLocation("/admin");
   };
 
-  const handleDeleteSource = async (id, userId) => {
+  const handleDeleteSource = async (id) => {
+    const userId = currentUserEmail;
     try {
       await deleteSourceMutation.mutateAsync({ id, userId });
       console.log("Source deleted. Refetching...");
@@ -60,6 +67,18 @@ export default function AdminPanel() {
       console.error("Error deleting source:", err);
     }
   };
+  const handleWorkspaceCreated = (newWorkspace) => {
+    // Add new workspace to Redux state
+    dispatch(
+      workspacesActions.setWorkspaces([
+        ...workspaces,
+        newWorkspace,
+      ])
+    );
+    // Select and navigate
+    setSelectedWorkspace(newWorkspace);
+    setLocation("/admin");
+  };
 
   return (
     <DashboardLayout>
@@ -67,17 +86,11 @@ export default function AdminPanel() {
         <StatisticsCards />
 
         <Tabs defaultValue="setup" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="setup">Setup</TabsTrigger>
-            <TabsTrigger value="report">Report</TabsTrigger>
-          </TabsList>
-
           <TabsContent value="setup" className="space-y-6">
-            <p className="text-gray-600">
-              Manage system settings and users here. Configure data sources and authentication methods.
-            </p>
-
-            {isAdd || isEdit ? (
+            {isAdd || isEdit || isAddWorkspace  ? (
+              isAddWorkspace ? (
+                <WorkspaceForm onWorkspaceCreated={handleWorkspaceCreated} />
+              ) : (
               <SourceForm
                 initialSource={editingSource}
                 mode={isEdit ? "edit" : "add"}
@@ -89,19 +102,21 @@ export default function AdminPanel() {
                 }}
                 currentWorkspace={selectedWorkspace}
               />
-            ) : isLoading ? (
+            )) : isLoading ? (
               <div className="text-gray-500">Loading sources...</div>
             ) : error ? (
               <div className="text-red-500">Failed to load sources</div>
             ) : (
               <SourceList
                 sources={fetchedSources}
+                workspaces={workspaces}
                 onAddSource={() => setLocation("/admin/source")}
                 onEditSource={(source) => setLocation(`/admin/source/edit/${source.id}`)}
                 onDeleteSource={handleDeleteSource}
                 selectedWorkspace={selectedWorkspace}
                 setSelectedWorkspace={setSelectedWorkspace}
                 onRefresh={refetch}
+                onAddWorkspace={() => setLocation("/admin/workspace")}
               />
             )}
           </TabsContent>

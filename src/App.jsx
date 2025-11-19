@@ -4,7 +4,7 @@ import { Toaster } from "./components/ui/toaster.jsx";
 import LoginPage from "./pages/login.jsx";
 import Home from "./pages/home.jsx";
 import AdminPanel from "./pages/admin-panel.jsx";
-import UserManagementPage from "./pages/user-management.jsx";
+import PipelineManagementPage from "./pages/pipeline-management.jsx";
 import ControlPanel from "./pages/ControlPanel.jsx";
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useIsAuthenticated, useMsal } from "@azure/msal-react";
 import ChatbotWidget from './components/chatbot-widget.jsx';
@@ -32,10 +32,12 @@ function Router() {
       />
       <Route path="/admin/source/edit/:id" component={hasBaristaRole ? AdminPanel : NotAuthorized}
       />
+      <Route path="/admin/workspace" component={hasBaristaRole ? AdminPanel : NotAuthorized}
+      />
       <Route path="/admin-panel" component={hasBaristaRole ? AdminPanel : NotAuthorized}
       />
-      <Route path="/user-management" component={UserManagementPage} />
-      <Route path="/user" component={UserManagementPage} />
+      <Route path="/pipeline-management" component={PipelineManagementPage} />
+      <Route path="/pipeline" component={PipelineManagementPage} />
       <Route path="/control-panel" component={ControlPanel} />
       <Route>404: Not Found!</Route>
     </Switch>
@@ -84,7 +86,7 @@ function Main() {
 
   useEffect(() => {
     if (isAuthenticated && accounts.length > 0 && workspaces.length === 0) {
-      dispatch(fetchWorkspaces(accounts[0].username));
+      dispatch(fetchWorkspaces(accounts[0].idTokenClaims.email));
     }
   }, [isAuthenticated, accounts, dispatch, workspaces.length]);
 
